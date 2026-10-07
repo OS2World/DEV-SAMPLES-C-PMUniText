@@ -1,0 +1,56 @@
+#define INCL_WIN
+#include <os2.h>
+#include "main.h"
+
+/* Skeleton menu with ASCII placeholders.  At run time every item gets its
+   label from the selected lang\*.txt file (UTF-8 -> UCS-2). */
+MENU ID_MAIN
+BEGIN
+    SUBMENU "~File", IDM_FILE
+    BEGIN
+        MENUITEM "~Reload language files", IDM_RELOAD
+        MENUITEM SEPARATOR
+        MENUITEM "E~xit",                  IDM_EXIT
+    END
+    SUBMENU "~Language", IDM_LANGUAGE
+    BEGIN
+        MENUITEM "(languages)", IDM_LANG_PLACEHOLDER
+    END
+    SUBMENU "~Options", IDM_OPTIONS
+    BEGIN
+        MENUITEM "~Unicode menus (owner drawn)", IDM_OWNERDRAW, MIS_TEXT, MIA_CHECKED
+        MENUITEM SEPARATOR
+        MENUITEM "~Larger text",  IDM_BIGGER
+        MENUITEM "~Smaller text", IDM_SMALLER
+        MENUITEM SEPARATOR
+        SUBMENU "~Font", IDM_FONT
+        BEGIN
+            MENUITEM "Automatic", IDM_FONT_AUTO, MIS_TEXT, MIA_CHECKED
+            MENUITEM "font 1",    IDM_FONT_1
+            MENUITEM "font 2",    IDM_FONT_2
+            MENUITEM "font 3",    IDM_FONT_3
+            MENUITEM "font 4",    IDM_FONT_4
+            MENUITEM "font 5",    IDM_FONT_5
+            MENUITEM "font 6",    IDM_FONT_6
+        END
+    END
+    SUBMENU "~Help", IDM_HELP
+    BEGIN
+        MENUITEM "~About", IDM_ABOUT
+    END
+END
+
+/* The key names shown in the menus come from accels[] in main.c. */
+ACCELTABLE ID_MAIN
+BEGIN
+    VK_F5, IDM_RELOAD,   VIRTUALKEY
+    VK_F1, IDM_ABOUT,    VIRTUALKEY
+    "x",   IDM_EXIT,     CONTROL
+    "X",   IDM_EXIT,     CONTROL
+    "u",   IDM_OWNERDRAW, CONTROL
+    "U",   IDM_OWNERDRAW, CONTROL
+    "b",   IDM_BIGGER,   CONTROL
+    "B",   IDM_BIGGER,   CONTROL
+    "s",   IDM_SMALLER,  CONTROL
+    "S",   IDM_SMALLER,  CONTROL
+END

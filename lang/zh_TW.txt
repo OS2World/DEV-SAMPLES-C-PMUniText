@@ -1,0 +1,24 @@
+# PMUniText language file - UTF-8, KEY=value, \n = line break
+LANG_NAME=繁體中文
+LANG_ENGLISH=Chinese (Traditional)
+FONT=Droid Sans Combined,Monotype Sans Duospace WT J,Times New Roman WT J
+
+MENU_FILE=檔案(~F)
+MENU_RELOAD=重新載入語言檔(~R)
+MENU_EXIT=結束(~X)
+MENU_LANGUAGE=語言(~L)
+MENU_OPTIONS=選項(~O)
+MENU_OWNERDRAW=Unicode選單（自繪）(~U)
+MENU_BIGGER=放大文字(~L)
+MENU_SMALLER=縮小文字(~S)
+MENU_FONT=字型(~F)
+MENU_FONT_AUTO=自動(~A)
+MENU_HELP=說明(~H)
+MENU_ABOUT=關於(~A)
+
+HEADING=在一般PM程式中使用Unicode
+TEXT1=此文字從程式旁的UTF-8檔案 lang\\zh_TW.txt 讀取，轉換為UCS-2，並由GPI以字碼頁1200繪製。
+TEXT2=請在「語言」選單中選擇其他語言。選單中的語言名稱以各自的文字顯示。
+TEXT3=編輯lang資料夾中的任何檔案，再選擇「檔案」→「重新載入語言檔」，不必重新啟動即可看到變更。
+TEXT4=範例：天地玄黃，宇宙洪荒。
+ABOUT=PMUniText 0.1 - 在OS/2 PM應用程式中處理Unicode文字的原型。僅使用GPI與ULS，不需外部函式庫。

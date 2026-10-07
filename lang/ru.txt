@@ -1,0 +1,24 @@
+# PMUniText language file - UTF-8, KEY=value, \n = line break
+LANG_NAME=Русский
+LANG_ENGLISH=Russian
+FONT=Times New Roman MT 30,Droid Sans Combined
+
+MENU_FILE=Файл(~F)
+MENU_RELOAD=Перечитать языковые файлы(~R)
+MENU_EXIT=Выход(~X)
+MENU_LANGUAGE=Язык(~L)
+MENU_OPTIONS=Параметры(~O)
+MENU_OWNERDRAW=Меню Unicode (самостоятельная отрисовка)(~U)
+MENU_BIGGER=Крупнее(~L)
+MENU_SMALLER=Мельче(~S)
+MENU_FONT=Шрифт(~F)
+MENU_FONT_AUTO=Авто(~A)
+MENU_HELP=Справка(~H)
+MENU_ABOUT=О программе(~A)
+
+HEADING=Юникод в обычной программе PM
+TEXT1=Этот текст прочитан из файла lang\\ru.txt в кодировке UTF-8, лежащего рядом с программой, преобразован в UCS-2 и нарисован средствами GPI в кодовой странице 1200.
+TEXT2=Выберите другой язык в меню «Язык». Названия языков в этом меню нарисованы их собственным письмом.
+TEXT3=Измените любой файл в папке lang и выберите «Файл» - «Перечитать языковые файлы», чтобы увидеть изменения без перезапуска.
+TEXT4=Панграмма: Съешь же ещё этих мягких французских булок, да выпей чаю.
+ABOUT=PMUniText 0.1 - прототип работы с Юникодом в приложениях OS/2 PM. Только GPI и ULS, без внешних библиотек.

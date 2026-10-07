@@ -1,0 +1,8 @@
+bin-wat/
+bin-gcc/
+*.obj
+*.res
+*.map
+*.log
+probe/probe.exe
+!probe/probe.log

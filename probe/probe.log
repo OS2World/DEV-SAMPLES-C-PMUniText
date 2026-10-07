@@ -1,0 +1,246 @@
+process codepage 850
+fonts reported: 198
+
+== faces (fsType: 0x40=UNICODE 0x10=DBCS 0x08=MBCS; outline=fsDefn&1) ==
+System Proportional              fam=System Proportional      cp=0     reg=0     type=0x0002 defn=0xa7f0
+System Proportional Non-ISO      fam=System Proportional      cp=0     reg=0     type=0x0002 defn=0x27f0
+WarpSans                         fam=WarpSans                 cp=0     reg=12345 type=0x0000 defn=0xb7f0
+WarpSans Bold                    fam=WarpSans                 cp=0     reg=12345 type=0x0000 defn=0xa7f0
+System VIO                       fam=System VIO               cp=0     reg=0     type=0x0003 defn=0xa7f0
+System Proportional Large LAT    fam=System Proportional      cp=0     reg=0     type=0x0002 defn=0x8070
+System Proportional Large CYR    fam=System Proportional      cp=0     reg=0     type=0x0002 defn=0x80b0
+System Proportional Large HEB    fam=System Proportional      cp=0     reg=0     type=0x0002 defn=0x8130
+System Proportional Large GRK    fam=System Proportional      cp=0     reg=0     type=0x0002 defn=0x8230
+URW Palladio L Italic            fam=URW Palladio L           cp=0     reg=0     type=0x005e defn=0x81d3
+URW Palladio L                   fam=URW Palladio L           cp=0     reg=0     type=0x005e defn=0x81d3
+URW Palladio L Bold Italic       fam=URW Palladio L           cp=0     reg=0     type=0x005e defn=0x81d3
+URW Palladio L Bold              fam=URW Palladio L           cp=0     reg=0     type=0x005e defn=0x81d3
+URW Gothic L Bold Oblique        fam=URW Gothic L             cp=0     reg=0     type=0x005e defn=0x81d3
+URW Gothic L Bold                fam=URW Gothic L             cp=0     reg=0     type=0x005e defn=0x81d3
+URW Gothic L Oblique             fam=URW Gothic L             cp=0     reg=0     type=0x005e defn=0x81d3
+URW Gothic L                     fam=URW Gothic L             cp=0     reg=0     type=0x005e defn=0x81d3
+URW Chancery L                   fam=URW Chancery L           cp=0     reg=0     type=0x005e defn=0x81d3
+URW Bookman L Italic             fam=URW Bookman L            cp=0     reg=0     type=0x005e defn=0x81d3
+URW Bookman L                    fam=URW Bookman L            cp=0     reg=0     type=0x005e defn=0x81d3
+URW Bookman L Bold Italic        fam=URW Bookman L            cp=0     reg=0     type=0x005e defn=0x81d3
+URW Bookman L Bold               fam=URW Bookman L            cp=0     reg=0     type=0x005e defn=0x81d3
+Nimbus Sans L Condensed Italic   fam=Nimbus Sans L Condensed  cp=0     reg=0     type=0x005e defn=0x81d3
+Nimbus Sans L Condensed          fam=Nimbus Sans L Condensed  cp=0     reg=0     type=0x005e defn=0x81d3
+Nimbus Sans L Condensed Bold It  fam=Nimbus Sans L Condensed  cp=0     reg=0     type=0x105e defn=0x81d3
+Nimbus Sans L Condensed Bold     fam=Nimbus Sans L Condensed  cp=0     reg=0     type=0x005e defn=0x81d3
+Dingbats                         fam=Dingbats                 cp=65400 reg=0     type=0x0002 defn=0x8003
+Century Schoolbook L Italic      fam=Century Schoolbook L     cp=0     reg=0     type=0x005e defn=0x81d3
+Century Schoolbook L             fam=Century Schoolbook L     cp=0     reg=0     type=0x005e defn=0x81d3
+Century Schoolbook L Bold Itali  fam=Century Schoolbook L     cp=0     reg=0     type=0x005e defn=0x81d3
+Century Schoolbook L Bold        fam=Century Schoolbook L     cp=0     reg=0     type=0x005e defn=0x81d3
+Heuristica Regular               fam=Heuristica               cp=0     reg=0     type=0x005e defn=0x93d3
+Heuristica Italic                fam=Heuristica               cp=0     reg=0     type=0x005e defn=0x91d3
+Heuristica Bold Italic           fam=Heuristica               cp=0     reg=0     type=0x005e defn=0x91d3
+Heuristica Bold                  fam=Heuristica               cp=0     reg=0     type=0x005e defn=0x91d3
+Bitstream Charter                fam=Bitstream Charter        cp=0     reg=0     type=0x005e defn=0x8013
+Bitstream Charter Italic         fam=Bitstream Charter        cp=0     reg=0     type=0x005e defn=0x8013
+Bitstream Charter Bold Italic    fam=Bitstream Charter        cp=0     reg=0     type=0x005e defn=0x8013
+Bitstream Charter Bold           fam=Bitstream Charter        cp=0     reg=0     type=0x005e defn=0x8013
+Droid Serif Bold Italic          fam=Droid Serif              cp=0     reg=0     type=0x005a defn=0x93d3
+Droid Serif Italic               fam=Droid Serif              cp=0     reg=0     type=0x005a defn=0x93d3
+Droid Serif Bold                 fam=Droid Serif              cp=0     reg=0     type=0x005a defn=0x93d3
+Droid Serif                      fam=Droid Serif              cp=0     reg=0     type=0x005a defn=0x93d3
+Droid Sans Mono                  fam=Droid Sans Mono          cp=0     reg=0     type=0x005b defn=0x93d3
+Droid Sans Combined              fam=Droid Sans Combined      cp=0     reg=0     type=0x005e defn=0xb7d3
+@Droid Sans Combined             fam=@Droid Sans Combined     cp=0     reg=0     type=0x005e defn=0xb7d3
+Droid Sans Bold                  fam=Droid Sans               cp=0     reg=0     type=0x005a defn=0x93d3
+Droid Sans                       fam=Droid Sans               cp=0     reg=0     type=0x005a defn=0x93d3
+Source Serif Pro Semibold        fam=Source Serif Pro Semibold cp=0     reg=0     type=0x0058 defn=0x83d3
+Source Serif Pro Light           fam=Source Serif Pro Light   cp=0     reg=0     type=0x0058 defn=0x83d3
+Source Serif Pro ExtraLight      fam=Source Serif Pro ExtraLight cp=0     reg=0     type=0x0058 defn=0x83d3
+Source Serif Pro Black           fam=Source Serif Pro Black   cp=0     reg=0     type=0x0058 defn=0x83d3
+Source Serif Pro                 fam=Source Serif Pro         cp=0     reg=0     type=0x0058 defn=0x83d3
+Source Serif Pro Bold            fam=Source Serif Pro         cp=0     reg=0     type=0x0058 defn=0x83d3
+Source Code Pro Semibold Italic  fam=Source Code Pro Semibold cp=0     reg=0     type=0x0059 defn=0x8153
+Source Code Pro Semibold         fam=Source Code Pro Semibold cp=0     reg=0     type=0x0059 defn=0x83d3
+Source Code Pro Medium Italic    fam=Source Code Pro Medium   cp=0     reg=0     type=0x0059 defn=0x8153
+Source Code Pro Medium           fam=Source Code Pro Medium   cp=0     reg=0     type=0x0059 defn=0x83d3
+Source Code Pro Light Italic     fam=Source Code Pro Light    cp=0     reg=0     type=0x0059 defn=0x8153
+Source Code Pro Light            fam=Source Code Pro Light    cp=0     reg=0     type=0x0059 defn=0x83d3
+Source Code Pro ExtraLight Ital  fam=Source Code Pro ExtraLight cp=0     reg=0     type=0x1059 defn=0x8153
+Source Code Pro ExtraLight       fam=Source Code Pro ExtraLight cp=0     reg=0     type=0x0059 defn=0x83d3
+Source Code Pro Black Italic     fam=Source Code Pro Black    cp=0     reg=0     type=0x0059 defn=0x8153
+Source Code Pro Black            fam=Source Code Pro Black    cp=0     reg=0     type=0x0059 defn=0x83d3
+Source Code Pro                  fam=Source Code Pro          cp=0     reg=0     type=0x0059 defn=0x83d3
+Source Code Pro Italic           fam=Source Code Pro          cp=0     reg=0     type=0x0059 defn=0x8153
+Source Code Pro Bold Italic      fam=Source Code Pro          cp=0     reg=0     type=0x0059 defn=0x8153
+Source Code Pro Bold             fam=Source Code Pro          cp=0     reg=0     type=0x0059 defn=0x83d3
+Source Sans Pro Semibold Italic  fam=Source Sans Pro Semibold cp=0     reg=0     type=0x0058 defn=0x8153
+Source Sans Pro Semibold         fam=Source Sans Pro Semibold cp=0     reg=0     type=0x0058 defn=0x83d3
+Source Sans Pro Light Italic     fam=Source Sans Pro Light    cp=0     reg=0     type=0x0058 defn=0x8153
+Source Sans Pro Light            fam=Source Sans Pro Light    cp=0     reg=0     type=0x0058 defn=0x83d3
+Source Sans Pro ExtraLight Ital  fam=Source Sans Pro ExtraLight cp=0     reg=0     type=0x1058 defn=0x8153
+Source Sans Pro ExtraLight       fam=Source Sans Pro ExtraLight cp=0     reg=0     type=0x0058 defn=0x83d3
+Source Sans Pro Black Italic     fam=Source Sans Pro Black    cp=0     reg=0     type=0x0058 defn=0x8153
+Source Sans Pro Black            fam=Source Sans Pro Black    cp=0     reg=0     type=0x0058 defn=0x83d3
+Source Sans Pro                  fam=Source Sans Pro          cp=0     reg=0     type=0x0058 defn=0x83d3
+Source Sans Pro Italic           fam=Source Sans Pro          cp=0     reg=0     type=0x0058 defn=0x8153
+Source Sans Pro Bold Italic      fam=Source Sans Pro          cp=0     reg=0     type=0x0058 defn=0x8153
+Source Sans Pro Bold             fam=Source Sans Pro          cp=0     reg=0     type=0x0058 defn=0x83d3
+Midori Sans Bold                 fam=Midori Sans              cp=0     reg=0     type=0x005e defn=0x8053
+Midori Sans                      fam=Midori Sans              cp=0     reg=0     type=0x005e defn=0x8053
+Workplace Sans Bold              fam=Workplace Sans           cp=0     reg=0     type=0x005c defn=0x87d3
+Workplace Sans                   fam=Workplace Sans           cp=0     reg=0     type=0x005c defn=0x87d3
+MMPMDigital                      fam=MMPMDigital              cp=0     reg=2304  type=0x0000 defn=0x8000
+Times New Roman MT 30            fam=Times New Roman MT 30    cp=0     reg=0     type=0x005a defn=0x97db
+Monotype Sans WT                 fam=Monotype Sans WT         cp=0     reg=0     type=0x005a defn=0x83d3
+Monotype Sans Duospace WT J      fam=Monotype Sans Duospace WT J cp=0     reg=0     type=0x005a defn=0x97d3
+@Monotype Sans Duospace WT J     fam=@Monotype Sans Duospace WT J cp=0     reg=0     type=0x005a defn=0x97d3
+Times New Roman WT J             fam=Times New Roman WT J     cp=0     reg=0     type=0x005a defn=0x97d3
+@Times New Roman WT J            fam=@Times New Roman WT J    cp=0     reg=0     type=0x005a defn=0x97d3
+Wingdings                        fam=Wingdings                cp=65400 reg=0     type=0x0000 defn=0x8003
+Symbol                           fam=Symbol                   cp=65400 reg=0     type=0x0000 defn=0x8003
+Courier New Italic               fam=Courier New              cp=0     reg=0     type=0x0059 defn=0x8003
+Courier New Bold Italic          fam=Courier New              cp=0     reg=0     type=0x0059 defn=0x8003
+Courier New Bold                 fam=Courier New              cp=0     reg=0     type=0x0059 defn=0x8003
+Courier New                      fam=Courier New              cp=0     reg=0     type=0x0059 defn=0x8003
+Arial Italic                     fam=Arial                    cp=0     reg=0     type=0x005c defn=0x8003
+Arial Bold Italic                fam=Arial                    cp=0     reg=0     type=0x005c defn=0x8003
+Arial Bold                       fam=Arial                    cp=0     reg=0     type=0x005c defn=0x8003
+Arial                            fam=Arial                    cp=0     reg=0     type=0x005c defn=0x8003
+Times New Roman Italic           fam=Times New Roman          cp=0     reg=0     type=0x0004 defn=0x8373
+Tms Rmn Italic                   fam=Roman                    cp=0     reg=0     type=0x0004 defn=0x8373
+Times New Roman Bold Italic      fam=Times New Roman          cp=0     reg=0     type=0x0004 defn=0x8373
+Tms Rmn Bold Italic              fam=Roman                    cp=0     reg=0     type=0x0004 defn=0x8373
+Times New Roman Bold             fam=Times New Roman          cp=0     reg=0     type=0x0004 defn=0x8373
+Tms Rmn Bold                     fam=Roman                    cp=0     reg=0     type=0x0004 defn=0x8373
+Times New Roman                  fam=Times New Roman          cp=0     reg=0     type=0x0004 defn=0x8373
+Tms Rmn                          fam=Roman                    cp=0     reg=0     type=0x0004 defn=0x8373
+Symbol Set                       fam=Symbol Set               cp=65400 reg=0     type=0x0000 defn=0x8003
+Courier Italic                   fam=Courier                  cp=0     reg=0     type=0x0001 defn=0x8373
+Courier Bold Italic              fam=Courier                  cp=0     reg=0     type=0x0001 defn=0x8373
+Courier Bold                     fam=Courier                  cp=0     reg=0     type=0x0001 defn=0x8373
+Courier                          fam=Courier                  cp=0     reg=0     type=0x0001 defn=0x8373
+Helvetica Italic                 fam=Helvetica                cp=0     reg=0     type=0x0004 defn=0x8373
+Helv Italic                      fam=Swiss                    cp=0     reg=0     type=0x0004 defn=0x8373
+Helvetica Bold Italic            fam=Helvetica                cp=0     reg=0     type=0x0004 defn=0x8373
+Helv Bold Italic                 fam=Swiss                    cp=0     reg=0     type=0x0004 defn=0x8373
+Helvetica Bold                   fam=Helvetica                cp=0     reg=0     type=0x0004 defn=0x8373
+Helv Bold                        fam=Swiss                    cp=0     reg=0     type=0x0004 defn=0x8373
+Helvetica                        fam=Helvetica                cp=0     reg=0     type=0x0004 defn=0x8373
+Helv                             fam=Swiss                    cp=0     reg=0     type=0x0004 defn=0x8373
+System Monospaced                fam=System Monospaced        cp=0     reg=0     type=0x0001 defn=0x27f0
+unique faces 123, flagged UNICODE 88
+
+== glyph coverage per outline face at 28 pels, cp 1200 ==
+  URW Palladio L Italic            : Latin Cyrillic 
+  URW Palladio L                   : Latin Cyrillic 
+  URW Palladio L Bold Italic       : Latin Cyrillic 
+  URW Palladio L Bold              : Latin Cyrillic 
+  URW Gothic L Bold Oblique        : Latin Cyrillic 
+  URW Gothic L Bold                : Latin Cyrillic 
+  URW Gothic L Oblique             : Latin Cyrillic 
+  URW Gothic L                     : Latin Cyrillic 
+  URW Chancery L                   : Latin Cyrillic 
+  URW Bookman L Italic             : Latin Cyrillic 
+  URW Bookman L                    : Latin Cyrillic 
+  URW Bookman L Bold Italic        : Latin Cyrillic 
+  URW Bookman L Bold               : Latin Cyrillic 
+  Nimbus Sans L Condensed Italic   : Latin Cyrillic 
+  Nimbus Sans L Condensed          : Latin Cyrillic 
+  Nimbus Sans L Condensed Bold It  : Latin Cyrillic 
+  Nimbus Sans L Condensed Bold     : Latin Cyrillic 
+  Dingbats                         : no FONT_MATCH with cp 1200
+  Century Schoolbook L Italic      : Latin Cyrillic 
+  Century Schoolbook L             : Latin Cyrillic 
+  Century Schoolbook L Bold Itali  : Latin Cyrillic 
+  Century Schoolbook L Bold        : Latin Cyrillic 
+  Heuristica Regular               : Latin Cyrillic 
+  Heuristica Italic                : Latin Cyrillic 
+  Heuristica Bold Italic           : Latin Cyrillic 
+  Heuristica Bold                  : Latin Cyrillic 
+  Bitstream Charter                : Latin 
+  Bitstream Charter Italic         : Latin 
+  Bitstream Charter Bold Italic    : Latin 
+  Bitstream Charter Bold           : Latin 
+  Droid Serif Bold Italic          : Latin Greek Cyrillic 
+  Droid Serif Italic               : Latin Greek Cyrillic 
+  Droid Serif Bold                 : Latin Greek Cyrillic 
+  Droid Serif                      : Latin Greek Cyrillic 
+  Droid Sans Mono                  : Latin Greek Cyrillic 
+  Droid Sans Combined              : Latin Greek Cyrillic Kana Kanji-JP Hanzi-CN Hangul Arabic 
+  @Droid Sans Combined             : Latin Greek Cyrillic Kana Kanji-JP Hanzi-CN Hangul Arabic 
+  Droid Sans Bold                  : Latin Greek Cyrillic 
+  Droid Sans                       : Latin Greek Cyrillic 
+  Source Serif Pro Semibold        : Latin Greek Cyrillic 
+  Source Serif Pro Light           : Latin Greek Cyrillic 
+  Source Serif Pro ExtraLight      : Latin Greek Cyrillic 
+  Source Serif Pro Black           : Latin Greek Cyrillic 
+  Source Serif Pro                 : Latin Greek Cyrillic 
+  Source Serif Pro Bold            : Latin Greek Cyrillic 
+  Source Code Pro Semibold Italic  : Latin 
+  Source Code Pro Semibold         : Latin Greek Cyrillic 
+  Source Code Pro Medium Italic    : Latin 
+  Source Code Pro Medium           : Latin Greek Cyrillic 
+  Source Code Pro Light Italic     : Latin 
+  Source Code Pro Light            : Latin Greek Cyrillic 
+  Source Code Pro ExtraLight Ital  : Latin 
+  Source Code Pro ExtraLight       : Latin Greek Cyrillic 
+  Source Code Pro Black Italic     : Latin 
+  Source Code Pro Black            : Latin Greek Cyrillic 
+  Source Code Pro                  : Latin Greek Cyrillic 
+  Source Code Pro Italic           : Latin 
+  Source Code Pro Bold Italic      : Latin 
+  Source Code Pro Bold             : Latin Greek Cyrillic 
+  Source Sans Pro Semibold Italic  : Latin 
+  Source Sans Pro Semibold         : Latin Greek Cyrillic 
+  Source Sans Pro Light Italic     : Latin 
+  Source Sans Pro Light            : Latin Greek Cyrillic 
+  Source Sans Pro ExtraLight Ital  : Latin 
+  Source Sans Pro ExtraLight       : Latin Greek Cyrillic 
+  Source Sans Pro Black Italic     : Latin 
+  Source Sans Pro Black            : Latin Greek Cyrillic 
+  Source Sans Pro                  : Latin Greek Cyrillic 
+  Source Sans Pro Italic           : Latin 
+  Source Sans Pro Bold Italic      : Latin 
+  Source Sans Pro Bold             : Latin Greek Cyrillic 
+  Midori Sans Bold                 : Latin 
+  Midori Sans                      : Latin 
+  Workplace Sans Bold              : Latin Greek Cyrillic 
+  Workplace Sans                   : Latin Greek Cyrillic 
+  Times New Roman MT 30            : Latin Greek Cyrillic Kana Kanji-JP Hanzi-CN Hangul Arabic 
+  Monotype Sans WT                 : Latin Greek Cyrillic 
+  Monotype Sans Duospace WT J      : Latin Greek Cyrillic Kana Kanji-JP Hanzi-CN Hangul Arabic 
+  @Monotype Sans Duospace WT J     : Latin Greek Cyrillic Kana Kanji-JP Hanzi-CN Hangul Arabic 
+  Times New Roman WT J             : Latin Greek Cyrillic Kana Kanji-JP Hanzi-CN Hangul Arabic 
+  @Times New Roman WT J            : Latin Greek Cyrillic Kana Kanji-JP Hanzi-CN Hangul Arabic 
+  Wingdings                        : no FONT_MATCH with cp 1200
+  Symbol                           : no FONT_MATCH with cp 1200
+  Courier New Italic               : Latin 
+  Courier New Bold Italic          : Latin 
+  Courier New Bold                 : Latin 
+  Courier New                      : Latin 
+  Arial Italic                     : Latin 
+  Arial Bold Italic                : Latin 
+  Arial Bold                       : Latin 
+  Arial                            : Latin 
+  Times New Roman Italic           : Latin Greek Cyrillic Arabic 
+  Tms Rmn Italic                   : Latin Greek Cyrillic Arabic 
+  Times New Roman Bold Italic      : Latin Greek Cyrillic Arabic 
+  Tms Rmn Bold Italic              : Latin Greek Cyrillic Arabic 
+  Times New Roman Bold             : Latin Greek Cyrillic Arabic 
+  Tms Rmn Bold                     : Latin Greek Cyrillic Arabic 
+  Times New Roman                  : Latin Greek Cyrillic Arabic 
+  Tms Rmn                          : Latin Greek Cyrillic Arabic 
+  Symbol Set                       : no FONT_MATCH with cp 1200
+  Courier Italic                   : Latin Greek Cyrillic Arabic 
+  Courier Bold Italic              : Latin Greek Cyrillic Arabic 
+  Courier Bold                     : Latin Greek Cyrillic Arabic 
+  Courier                          : Latin Greek Cyrillic Arabic 
+  Helvetica Italic                 : Latin Greek Cyrillic Arabic 
+  Helv Italic                      : Latin Greek Cyrillic Arabic 
+  Helvetica Bold Italic            : Latin Greek Cyrillic Arabic 
+  Helv Bold Italic                 : Latin Greek Cyrillic Arabic 
+  Helvetica Bold                   : Latin Greek Cyrillic Arabic 
+  Helv Bold                        : Latin Greek Cyrillic Arabic 
+  Helvetica                        : Latin Greek Cyrillic Arabic 
+  Helv                             : Latin Greek Cyrillic Arabic 
+
+length semantics (Times New Roman MT 30, AAAA as UCS-2): width(count=8)=81 width(count=4)=40
+  => the count is in ambiguous: 8 and 4 both measured, 8 is wider (4 chars drawn for 8 -> BYTES)
+done
