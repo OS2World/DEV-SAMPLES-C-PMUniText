@@ -17,8 +17,8 @@
 
 typedef struct {
     char    *key;                 /* ASCII, upper case */
-    USHORT  *val;                 /* UCS-2, zero terminated */
-    int      n;                   /* chars in val */
+    char    *val;                 /* UTF-8, zero terminated */
+    int      n;                   /* bytes in val */
 } LENTRY;
 
 typedef struct {
@@ -28,8 +28,8 @@ typedef struct {
     int      ne;
     char     english[64];         /* LANG_ENGLISH (ASCII) */
     char     fonts[256];          /* FONT, as in the file */
-    const USHORT *name;           /* LANG_NAME, native script */
-    int      nameLen;
+    const char *name;             /* LANG_NAME, native script (UTF-8) */
+    int      nameLen;             /* bytes */
     long     bytes, chars, invalid;
 } LANG;
 
@@ -39,6 +39,6 @@ int  lang_scan(const char *dir, LANG *arr, int max);
 void lang_free(LANG *arr, int count);
 
 /* Text of a key in one language, or NULL when absent. */
-const USHORT *lang_get(const LANG *l, const char *key, int *n);
+const char *lang_get(const LANG *l, const char *key, int *n);     /* *n = bytes */
 
 #endif

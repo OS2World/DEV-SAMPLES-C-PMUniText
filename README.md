@@ -12,10 +12,10 @@ language files that sit next to the executable.
 | Piece | Where | What it does |
 |---|---|---|
 | UTF-8 language files | `lang\*.txt` | `KEY=value`, `\n` = line break, `#` comment; added/edited without recompiling |
-| UTF-8 -> UCS-2 | `src\uni.c` `utf8_to_ucs2()` | own decoder (BOM, invalid sequences, non-BMP become U+FFFD) |
-| Drawing | `src\uni.c` `uni_begin/uni_draw` | logical font with `usCodePage = 1200`, `GpiSetCp(hps, 1200)`, `GpiCharStringAt` |
-| Menus | `src\main.c` | every item switched to `MIS_OWNERDRAW`; the UCS-2 label is the item handle (`hItem`) and is painted with the same drawing code |
-| Plain fallback | `uls_to_cp()` | UCS-2 -> process code page through ULS (`UCONV.DLL`, loaded at run time); `?` for characters that do not exist in the code page |
+| UTF-8 text | `src\lang.c` `utf8_sanitize()` | text stays UTF-8 (code page 1208) in memory; BOM skipped, malformed sequences become U+FFFD |
+| Drawing | `src\uni.c` `uni_begin/uni_draw` | logical font with `usCodePage = 1208`, `GpiSetCp(hps, 1208)`, `GpiCharStringAt` with the length in bytes - GPI reads the UTF-8 directly, no UCS-2 conversion |
+| Menus | `src\main.c` | every item switched to `MIS_OWNERDRAW`; the UTF-8 label is the item handle (`hItem`) and is painted with the same drawing code |
+| Plain fallback | `uls_to_cp()` | UTF-8 -> process code page through ULS (`UCONV.DLL`, loaded at run time); `?` for characters that do not exist in the code page |
 | Font choice | `resolve_face()` | per-language `FONT=` list, then built-in candidates; a face is accepted only if it really draws the language's characters (rendered into a memory bitmap and compared with the face's "missing glyph") |
 
 Language menu items are labelled with each language's own name (`LANG_NAME`), so every script is
@@ -23,13 +23,21 @@ visible in the menu at once.
 
 ## Findings (ArcaOS 5.1, tested in the VM)
 
-* GPI length arguments for a code page 1200 string are in **bytes** (2 per character), not characters.
+* **GPI accepts UTF-8 directly: code page 1208.** A font created with `FATTRS.usCodePage = 1208` (and
+  `GpiSetCp(hps, 1208)`) draws UTF-8 bytes exactly like the same text as UCS-2 in code page 1200
+  (identical pels for Latin, Greek, Cyrillic, Japanese, Korean; `probe\probe1208.c`, `probe\probe1208.log`).
+  The *font's* code page decides: a font created for 1200 followed by `GpiSetCp(1208)` draws garbage.
+  (The first version of this sample converted to UCS-2 and used 1200; thanks to Dave Yeo for pointing
+  out CP 1208.)
+* GPI length arguments are in **bytes** (the UTF-8 length; 2 per character for code page 1200).
+* 4-byte (non-BMP) sequences are accepted and do not crash, but the tested fonts have no glyphs for
+  them (they draw as two missing-glyph boxes, i.e. GPI turns them into a surrogate pair).
 * Faces that contain Kana, Kanji/Hanzi and Hangul glyphs: `Droid Sans Combined`,
   `Times New Roman MT 30`, `Monotype Sans Duospace WT J`, `Times New Roman WT J`.
   Latin/Greek/Cyrillic: most of the installed outline fonts. Full list: `probe\probe.log`.
 * **PM sends `WM_MEASUREITEM` / `WM_DRAWITEM` of a menu to the frame (the menu's owner), not to the
   menu window.** Subclassing only the menu window gives an empty menu bar.
-* The title bar and standard controls cannot show UCS-2. The title therefore uses the ASCII
+* The title bar and standard controls cannot show Unicode. The title therefore uses the ASCII
   English language name (`LANG_ENGLISH`); everything else that must be localized is drawn.
 * Plain (non-owner-drawn) menus work but show `?` for anything outside code page 850. Switch
   between both modes in *Options* to see the difference.
@@ -49,8 +57,9 @@ visible in the menu at once.
 
 ## Limits of the prototype
 
-* UCS-2 only: no surrogate pairs (emoji, rare CJK ideographs), no right-to-left or complex
-  shaping (Arabic, Hebrew, Indic) - GPI does no layout.
+* Only the BMP is usable in practice: GPI accepts non-BMP UTF-8 (emoji, rare CJK ideographs) but the
+  installed fonts have no glyphs for it. No right-to-left or complex shaping (Arabic, Hebrew,
+  Indic) - GPI does no layout.
 * No text input / IME. Entry fields, MLEs and list boxes still use the process code page.
 * IPF help (`wipfc`) is not Unicode; a Unicode help text would need its own viewer.
 
@@ -66,10 +75,11 @@ visible in the menu at once.
 ## Layout
 
 ```
-src\       main.c (window, menus, painting)  uni.c (UTF-8, ULS, fonts, drawing)  lang.c (language files)
+src\       main.c (window, menus, painting)  uni.c (UTF-8 helpers, ULS, fonts, drawing)  lang.c (language files)
 lang\      en es ru el ja zh_CN zh_TW ko
 img\       screenshots
 probe\     probe.c + probe.log  (what GPI does with code page 1200 on this system)
+           probe1208.c + probe1208.log  (GPI with UTF-8 / code page 1208)
 ```
 
 ## License
@@ -78,5 +88,6 @@ BSD 3-Clause (see `LICENSE`), same as the PM Template.
 
 ## Release notes
 
+* 0.3 - text is drawn as UTF-8 through GPI code page 1208; the UTF-8 to UCS-2 conversion for drawing is gone (UCS-2 is only used inside the ULS fallback).
 * 0.2 - mnemonics (underlined, Alt+letter and letters in open submenus) and accelerator column for owner-drawn menus.
 * 0.1 - first prototype (October 2026).

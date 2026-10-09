@@ -17,8 +17,8 @@ MENU_HELP=A~yuda
 MENU_ABOUT=~Acerca de
 
 HEADING=Unicode en un programa PM normal
-TEXT1=Este texto se lee de lang\\es.txt, un archivo UTF-8 junto al programa, se convierte a UCS-2 y lo dibuja GPI en la página de códigos 1200.
+TEXT1=Este texto se lee de lang\\es.txt, un archivo UTF-8 junto al programa, y lo dibuja GPI directamente en la página de códigos 1208 (UTF-8).
 TEXT2=Elige otro idioma en el menú Idioma. Los nombres de ese menú se dibujan con su propia escritura.
 TEXT3=Edita cualquier archivo de la carpeta lang y usa Archivo - Recargar archivos de idioma para ver el cambio sin reiniciar.
 TEXT4=Pangrama: El veloz murciélago hindú comía feliz cardillo y kiwi. La cigüeña tocaba el saxofón detrás del palenque de paja.
-ABOUT=PMUniText 0.1 - prototipo de texto Unicode en aplicaciones PM de OS/2. Solo GPI y ULS, sin bibliotecas externas.
+ABOUT=PMUniText 0.3 - prototipo de texto Unicode en aplicaciones PM de OS/2. Solo GPI y ULS, sin bibliotecas externas.

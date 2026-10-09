@@ -17,8 +17,8 @@ MENU_HELP=帮助(~H)
 MENU_ABOUT=关于(~A)
 
 HEADING=在普通PM程序中使用Unicode
-TEXT1=此文本从程序旁边的UTF-8文件 lang\\zh_CN.txt 读取，转换为UCS-2，并由GPI以代码页1200绘制。
+TEXT1=此文本从程序旁边的UTF-8文件 lang\\zh_CN.txt 读取，并由GPI以代码页1208（UTF-8）直接绘制。
 TEXT2=请在“语言”菜单中选择其他语言。菜单中的语言名称使用各自的文字显示。
 TEXT3=编辑lang文件夹中的任意文件，然后选择“文件”→“重新加载语言文件”，无需重启即可看到更改。
 TEXT4=示例：天地玄黄，宇宙洪荒。
-ABOUT=PMUniText 0.1 - 在OS/2 PM应用程序中处理Unicode文本的原型。只使用GPI和ULS，不依赖外部库。
+ABOUT=PMUniText 0.3 - 在OS/2 PM应用程序中处理Unicode文本的原型。只使用GPI和ULS，不依赖外部库。

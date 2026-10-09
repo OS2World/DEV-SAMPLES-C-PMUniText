@@ -10,33 +10,33 @@
 static void add_entry(LANG *l, const char *key, int klen, const unsigned char *val, long vlen)
 {
     unsigned char *tmp;
-    USHORT *ucs;
     long i, o = 0, inv = 0, n;
     LENTRY *ne;
     char *k;
 
-    tmp = (unsigned char *)malloc(vlen + 1);
+    tmp = (unsigned char *)malloc(vlen * 3 + 4);       /* room for utf8_sanitize */
     if (!tmp) return;
     for (i = 0; i < vlen; i++) {                 /* \n and \ escapes */
         if (val[i] == '\\' && i + 1 < vlen && val[i + 1] == 'n')  { tmp[o++] = '\n'; i++; }
         else if (val[i] == '\\' && i + 1 < vlen && val[i + 1] == '\\') { tmp[o++] = '\\'; i++; }
         else tmp[o++] = val[i];
     }
-    ucs = (USHORT *)malloc((o + 1) * sizeof(USHORT));
-    if (!ucs) { free(tmp); return; }
-    n = utf8_to_ucs2(tmp, o, ucs, o + 1, &inv);
-    free(tmp);
+    tmp[o] = 0;
+    {
+        long ch = 0;
+        n = utf8_sanitize(tmp, o, &inv, &ch);          /* the text stays UTF-8 */
+        l->chars += ch;
+    }
     l->invalid += inv;
-    l->chars += n;
 
     ne = (LENTRY *)realloc(l->e, (l->ne + 1) * sizeof(LENTRY));
-    if (!ne) { free(ucs); return; }
+    if (!ne) { free(tmp); return; }
     l->e = ne;
     k = (char *)malloc(klen + 1);
     for (i = 0; i < klen; i++) k[i] = (char)((key[i] >= 'a' && key[i] <= 'z') ? key[i] - 32 : key[i]);
     k[klen] = 0;
     l->e[l->ne].key = k;
-    l->e[l->ne].val = ucs;
+    l->e[l->ne].val = (char *)tmp;
     l->e[l->ne].n = (int)n;
     l->ne++;
 }
@@ -142,7 +142,7 @@ void lang_free(LANG *arr, int count)
     }
 }
 
-const USHORT *lang_get(const LANG *l, const char *key, int *n)
+const char *lang_get(const LANG *l, const char *key, int *n)
 {
     int i;
     for (i = 0; i < l->ne; i++)

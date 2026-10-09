@@ -8,45 +8,91 @@
 #include <string.h>
 
 /* ------------------------------------------------------------------ */
-/* UTF-8 -> UCS-2                                                      */
+/* UTF-8 helpers                                                       */
 /* ------------------------------------------------------------------ */
 
-long utf8_to_ucs2(const unsigned char *src, long srclen,
-                  USHORT *dst, long dstmax, long *invalid)
+int utf8_seqlen(unsigned char c)
 {
-    long i = 0, n = 0;
+    if (c < 0x80) return 1;
+    if ((c & 0xE0) == 0xC0) return 2;
+    if ((c & 0xF0) == 0xE0) return 3;
+    if ((c & 0xF8) == 0xF0) return 4;
+    return 1;                                  /* stray continuation byte */
+}
 
-    if (invalid) *invalid = 0;
-    if (dstmax < 1) return 0;
-    while (i < srclen && n < dstmax - 1) {
-        unsigned long cp;
-        unsigned char c = src[i];
-        int extra, k, bad = 0;
+unsigned long utf8_decode(const char *s, int n, int *used)
+{
+    unsigned char c = (unsigned char)s[0];
+    int len = utf8_seqlen(c), k;
+    unsigned long cp;
 
-        if (c < 0x80)                { cp = c;        extra = 0; }
-        else if ((c & 0xE0) == 0xC0) { cp = c & 0x1F; extra = 1; }
-        else if ((c & 0xF0) == 0xE0) { cp = c & 0x0F; extra = 2; }
-        else if ((c & 0xF8) == 0xF0) { cp = c & 0x07; extra = 3; }
-        else                         { cp = 0xFFFD;   extra = 0; bad = 1; }
-        i++;
-        for (k = 0; k < extra; k++) {
-            if (i < srclen && (src[i] & 0xC0) == 0x80) {
-                cp = (cp << 6) | (src[i] & 0x3F);
-                i++;
-            } else {
-                bad = 1;
-                break;
-            }
-        }
-        if (bad || cp > 0xFFFF || (cp >= 0xD800 && cp <= 0xDFFF)) {
-            /* not representable in UCS-2 (GPI has no surrogate support) */
-            cp = 0xFFFD;
-            if (invalid) (*invalid)++;
-        }
-        dst[n++] = (USHORT)cp;
+    if (n < 1) { if (used) *used = 0; return 0; }
+    if (len > n) len = n;
+    if (len == 1) { if (used) *used = 1; return c < 0x80 ? c : 0xFFFD; }
+    cp = c & (0xFF >> (len + 1));
+    for (k = 1; k < len; k++) {
+        if (((unsigned char)s[k] & 0xC0) != 0x80) { if (used) *used = k; return 0xFFFD; }
+        cp = (cp << 6) | ((unsigned char)s[k] & 0x3F);
     }
-    dst[n] = 0;
-    return n;
+    if (used) *used = len;
+    return cp;
+}
+
+int utf8_align(const char *s, int n, int k)
+{
+    int i = k;
+
+    if (k >= n) return n;
+    while (i > 0 && ((unsigned char)s[i] & 0xC0) == 0x80) i--;
+    if (i == 0 && k > 0) i = utf8_seqlen((unsigned char)s[0]);
+    return i > n ? n : i;
+}
+
+/* is the sequence at src[i..] well formed?  returns its length or 0 */
+static int valid_seq(const unsigned char *src, long i, long len)
+{
+    unsigned char c = src[i];
+    int l, k;
+    unsigned long cp;
+
+    if (c < 0x80) return 1;
+    if (c < 0xC2 || c > 0xF4) return 0;                  /* continuation, overlong, > U+10FFFF */
+    l = utf8_seqlen(c);
+    if (i + l > len) return 0;
+    cp = c & (0xFF >> (l + 1));
+    for (k = 1; k < l; k++) {
+        if ((src[i + k] & 0xC0) != 0x80) return 0;
+        cp = (cp << 6) | (src[i + k] & 0x3F);
+    }
+    if ((l == 3 && cp < 0x800) || (l == 4 && (cp < 0x10000 || cp > 0x10FFFF))) return 0;
+    if (cp >= 0xD800 && cp <= 0xDFFF) return 0;          /* surrogates are not UTF-8 */
+    return l;
+}
+
+long utf8_sanitize(unsigned char *buf, long len, long *invalid, long *chars)
+{
+    unsigned char *out = (unsigned char *)malloc(len * 3 + 4);
+    long i = 0, o = 0, inv = 0, ch = 0;
+
+    if (!out) { if (invalid) *invalid = 0; if (chars) *chars = len; buf[len] = 0; return len; }
+    while (i < len) {
+        int l = valid_seq(buf, i, len);
+        if (l) {
+            memcpy(out + o, buf + i, l);
+            o += l; i += l;
+        } else {
+            out[o++] = 0xEF; out[o++] = 0xBF; out[o++] = 0xBD;     /* U+FFFD */
+            i++;
+            inv++;
+        }
+        ch++;
+    }
+    out[o] = 0;
+    memcpy(buf, out, o + 1);               /* caller provides len*3+4 bytes */
+    if (invalid) *invalid = inv;
+    if (chars) *chars = ch;
+    free(out);
+    return o;
 }
 
 /* ------------------------------------------------------------------ */
@@ -93,14 +139,17 @@ int uls_init(void)
 
 ULONG uls_codepage(void) { return ulCp; }
 
-int uls_to_cp(const USHORT *s, int n, char *out, int outmax)
+int uls_to_cp(const char *s, int n, char *out, int outmax)
 {
-    int i, o = 0;
+    int i = 0, o = 0;
 
-    for (i = 0; i < n && o < outmax - 1; i++) {
-        if (s[i] < 0x80) {                 /* ASCII needs no table */
-            out[o++] = (char)s[i];
-        } else if (uobj) {
+    while (i < n && o < outmax - 1) {
+        int used = 1;
+        unsigned long cp = utf8_decode(s + i, n - i, &used);
+        i += used > 0 ? used : 1;
+        if (cp < 0x80) {                   /* ASCII needs no table */
+            out[o++] = (char)cp;
+        } else if (uobj && cp <= 0xFFFF) {
             USHORT  in[2];
             USHORT *pin = in;
             char    buf[8];
@@ -108,7 +157,7 @@ int uls_to_cp(const USHORT *s, int n, char *out, int outmax)
             size_t  inchars = 1, outbytes = sizeof(buf), subst = 0;
             int     rc;
 
-            in[0] = s[i]; in[1] = 0;
+            in[0] = (USHORT)cp; in[1] = 0;
             rc = pfnFromUcs(uobj, &pin, &inchars, &pout, &outbytes, &subst);
             if (rc == 0 && subst == 0 && sizeof(buf) - outbytes > 0 &&
                 o + (int)(sizeof(buf) - outbytes) < outmax) {
@@ -139,7 +188,7 @@ int uni_begin(HPS hps, const char *face, int pels, ULONG *oldcp)
     memset(&fat, 0, sizeof(fat));
     fat.usRecordLength = sizeof(FATTRS);
     strncpy(fat.szFacename, face, FACESIZE - 1);
-    fat.usCodePage = 1200;
+    fat.usCodePage = (USHORT)UNI_CP;     /* UTF-8: the font decides how GPI reads the bytes */
     fat.fsFontUse  = FATTR_FONTUSE_OUTLINE | FATTR_FONTUSE_TRANSFORMABLE;
     GpiDeleteSetId(hps, UNI_LCID);
     rc = GpiCreateLogFont(hps, NULL, UNI_LCID, &fat);
@@ -148,7 +197,7 @@ int uni_begin(HPS hps, const char *face, int pels, ULONG *oldcp)
     sz.cx = MAKEFIXED(pels, 0);
     sz.cy = MAKEFIXED(pels, 0);
     GpiSetCharBox(hps, &sz);
-    GpiSetCp(hps, 1200L);
+    GpiSetCp(hps, UNI_CP);
     return 1;
 }
 
@@ -159,16 +208,16 @@ void uni_end(HPS hps, ULONG oldcp)
     GpiDeleteSetId(hps, UNI_LCID);
 }
 
-#define CHUNK 200            /* chars per GPI call, stays below 512 bytes */
+#define CHUNK 200            /* bytes per GPI call, stays below 512; never cuts a character */
 
-int uni_width(HPS hps, const USHORT *s, int n)
+int uni_width(HPS hps, const char *s, int n)
 {
     POINTL pt[TXTBOX_COUNT];
     int total = 0;
 
     while (n > 0) {
-        int c = n > CHUNK ? CHUNK : n;
-        if (GpiQueryTextBox(hps, c * 2L, (PCH)s, TXTBOX_COUNT, pt))
+        int c = utf8_align(s, n, n > CHUNK ? CHUNK : n);
+        if (GpiQueryTextBox(hps, (LONG)c, (PCH)s, TXTBOX_COUNT, pt))
             total += (int)(pt[TXTBOX_CONCAT].x - pt[TXTBOX_BOTTOMLEFT].x);
         s += c; n -= c;
     }
@@ -196,30 +245,23 @@ int uni_descender(HPS hps)
     return 0;
 }
 
-void uni_draw(HPS hps, long x, long y, const USHORT *s, int n)
+void uni_draw(HPS hps, long x, long y, const char *s, int n)
 {
     POINTL pt;
 
     pt.x = x; pt.y = y;
     while (n > 0) {
-        int c = n > CHUNK ? CHUNK : n;
-        GpiCharStringAt(hps, &pt, c * 2L, (PCH)s);
+        int c = utf8_align(s, n, n > CHUNK ? CHUNK : n);
+        GpiCharStringAt(hps, &pt, (LONG)c, (PCH)s);
         s += c; n -= c;
         if (n > 0) pt.x = x + uni_width(hps, s - c, c);    /* next piece */
     }
 }
 
-USHORT *uni_ascii(const char *s, int *n)
+const char *uni_ascii(const char *s, int *n)
 {
-    static USHORT buf[4][256];
-    static int    k;
-    USHORT *b = buf[k++ & 3];
-    int i;
-
-    for (i = 0; s[i] && i < 255; i++) b[i] = (unsigned char)s[i];
-    b[i] = 0;
-    if (n) *n = i;
-    return b;
+    if (n) *n = (int)strlen(s);
+    return s;
 }
 
 /* ------------------------------------------------------------------ */
@@ -257,7 +299,7 @@ static int cov_setup(void)
     return 1;
 }
 
-static long cov_render(USHORT ch, unsigned long *hash)
+static long cov_render(const char *ch, int len, unsigned long *hash)
 {
     POINTL pt, p;
     RECTL  rcl;
@@ -270,7 +312,7 @@ static long cov_render(USHORT ch, unsigned long *hash)
     bg = GpiQueryPel(hpsMem, &p);
     GpiSetColor(hpsMem, CLR_BLACK);
     pt.x = 4; pt.y = 12;
-    GpiCharStringAt(hpsMem, &pt, 2L, (PCH)&ch);
+    GpiCharStringAt(hpsMem, &pt, (LONG)len, (PCH)ch);
     for (y = 0; y < COV; y++)
         for (x = 0; x < COV; x++) {
             p.x = x; p.y = y;
@@ -283,21 +325,25 @@ static long cov_render(USHORT ch, unsigned long *hash)
     return cnt;
 }
 
-int uni_covers(const char *face, const USHORT *s, int n)
+int uni_covers(const char *face, const char *s, int n)
 {
     ULONG oldcp;
     unsigned long hNone, h;
     long pNone, p;
-    int i, checked = 0, ok = 1;
+    int i = 0, checked = 0, ok = 1;
+    static const char none[] = "\xCD\xB8";       /* U+0378, unassigned */
 
     if (!cov_setup()) return 1;                  /* cannot test: assume yes */
     if (!uni_begin(hpsMem, face, 28, &oldcp)) { uni_end(hpsMem, oldcp); return 0; }
-    pNone = cov_render(0x0378, &hNone);
-    for (i = 0; i < n && checked < 6; i++) {
-        if (s[i] < 0x80) continue;               /* Latin is always there */
+    pNone = cov_render(none, 2, &hNone);
+    while (i < n && checked < 6) {
+        int used = utf8_seqlen((unsigned char)s[i]);
+        if (i + used > n) used = n - i;
+        if ((unsigned char)s[i] < 0x80) { i += used; continue; }   /* Latin is always there */
         checked++;
-        p = cov_render(s[i], &h);
+        p = cov_render(s + i, used, &h);
         if (p == 0 || (p == pNone && h == hNone)) { ok = 0; break; }
+        i += used;
     }
     uni_end(hpsMem, oldcp);
     return ok;

@@ -1,14 +1,18 @@
 /*
  * uni.h -- Unicode text layer for plain PM applications
  *
- * Strings are kept as UCS-2 (UniChar, 16 bit).  They are drawn with GPI
- * in code page 1200 using a Unicode-capable outline font.  Everything PM
- * cannot display natively (menus, title bar) goes through ULS conversion
- * into the process code page or through owner drawing.
+ * Strings are kept as UTF-8 (code page 1208), exactly as they come from the
+ * language files.  GPI draws them directly: the logical font is created with
+ * usCodePage = 1208 and GpiSetCp(hps, 1208), and the length arguments are in
+ * BYTES.  No conversion to UCS-2 is needed for drawing.  Everything PM cannot
+ * display natively (menus, title bar) goes through ULS conversion into the
+ * process code page or through owner drawing.
  *
- * Findings from probe\probe.c on ArcaOS 5.1 (documented in README.md):
- *   - GpiCharStringAt / GpiQueryTextBox take the length of a CP 1200
- *     string in BYTES, not characters
+ * Findings from probe\probe.c and probe\probe1208.c on ArcaOS 5.1
+ * (documented in README.md):
+ *   - a font created with code page 1208 draws UTF-8 text identically to the
+ *     same text as UCS-2 in code page 1200 (the font's code page decides,
+ *     GpiSetCp on a font created for 1200 does not work)
  *   - "Droid Sans Combined", "Times New Roman MT 30" and the WT J fonts
  *     contain Kana, Kanji/Hanzi and Hangul glyphs
  */
@@ -21,43 +25,52 @@
 #define INCL_GPI
 #include <os2.h>
 
-/* ---- UTF-8 -> UCS-2 ---------------------------------------------- */
+#define UNI_CP 1208L          /* UTF-8 */
 
-/* Decodes src (srclen bytes) into dst (room for dstmax chars incl. the
- * terminating 0).  Characters outside the BMP and malformed sequences
- * become U+FFFD; *invalid counts them.  Returns the number of chars. */
-long utf8_to_ucs2(const unsigned char *src, long srclen,
-                  USHORT *dst, long dstmax, long *invalid);
+/* ---- UTF-8 helpers ------------------------------------------------ */
+
+/* Replaces malformed sequences in buf (len bytes, room for len*3+4 bytes) by
+ * U+FFFD (EF BF BD).  *invalid counts them, *chars the code points.  Returns
+ * the new length; the buffer is zero terminated. */
+long utf8_sanitize(unsigned char *buf, long len, long *invalid, long *chars);
+
+int  utf8_seqlen(unsigned char lead);                 /* bytes of the sequence (1..4) */
+/* Decodes one code point at s (n bytes left); *used gets the sequence length. */
+unsigned long utf8_decode(const char *s, int n, int *used);
+/* Largest k2 <= k that does not cut a sequence inside (k2 == n is allowed);
+ * at least one character when k > 0. */
+int  utf8_align(const char *s, int n, int k);
 
 /* ---- ULS (UCONV.DLL), loaded at run time ------------------------- */
 
 int  uls_init(void);          /* 1 = ULS available, 0 = ASCII fallback */
-/* UCS-2 -> current process code page; unmappable characters become '?' */
-int  uls_to_cp(const USHORT *s, int n, char *out, int outmax);
+/* UTF-8 -> current process code page; unmappable characters become '?' */
+int  uls_to_cp(const char *utf8, int n, char *out, int outmax);
 ULONG uls_codepage(void);
 
 /* ---- fonts and drawing ------------------------------------------ */
 
 #define UNI_LCID 7L           /* local character set id used for text */
 
-/* Select face at pels (device pels) for code page 1200 into hps.
+/* Select face at pels (device pels) for code page 1208 into hps.
  * Returns 1 when the face exists (FONT_MATCH).  Always pair with
  * uni_end(). */
 int  uni_begin(HPS hps, const char *face, int pels, ULONG *oldcp);
 void uni_end(HPS hps, ULONG oldcp);
 
-int  uni_width(HPS hps, const USHORT *s, int n);
+/* n is the length in BYTES of the UTF-8 string s */
+int  uni_width(HPS hps, const char *s, int n);
 int  uni_height(HPS hps);                       /* line height in pels */
 int  uni_descender(HPS hps);
-void uni_draw(HPS hps, long x, long y, const USHORT *s, int n);
+void uni_draw(HPS hps, long x, long y, const char *s, int n);
 
 /* Does this face draw a visible glyph for every character of s? */
-int  uni_covers(const char *face, const USHORT *s, int n);
+int  uni_covers(const char *face, const char *s, int n);
 
 /* Frees the ULS object and the coverage-test bitmap. */
 void uni_done(void);
 
-/* Convert plain ASCII to a temporary UCS-2 buffer (max 255 chars). */
-USHORT *uni_ascii(const char *s, int *n);
+/* ASCII is valid UTF-8: returns s and its length. */
+const char *uni_ascii(const char *s, int *n);
 
 #endif

@@ -64,9 +64,9 @@ static void logf2(const char *fmt, long a, long b)
 }
 
 /* text for a key: current language, then English, then the key itself */
-static const USHORT *get_text(const char *key, int *n)
+static const char *get_text(const char *key, int *n)
 {
-    const USHORT *p = NULL;
+    const char *p = NULL;
 
     if (cur >= 0 && cur < nlang) p = lang_get(&langs[cur], key, n);
     if (!p && enIdx >= 0)        p = lang_get(&langs[enIdx], key, n);
@@ -82,9 +82,9 @@ static void resolve_face(void)
 {
     char cand[NBUILTIN + 8][FACESIZE];
     int  ncand = 0, i;
-    USHORT sample[512];
+    char sample[512];
     int  ns = 0, n;
-    const USHORT *p;
+    const char *p;
 
     if (fontChoice > 0) {
         strcpy(cand[ncand++], builtinFaces[fontChoice - 1]);
@@ -100,9 +100,10 @@ static void resolve_face(void)
 
     /* characters the face has to be able to draw */
     p = langs[cur].name;
-    for (i = 0; p && i < langs[cur].nameLen && ns < 200; i++) sample[ns++] = p[i];
+    if (p) { n = utf8_align(p, langs[cur].nameLen, 200); memcpy(sample, p, n); ns = n; }
     p = get_text("HEADING", &n);
-    for (i = 0; i < n && ns < 400; i++) sample[ns++] = p[i];
+    n = utf8_align(p, n, 200);
+    memcpy(sample + ns, p, n); ns += n;
     sample[ns] = 0;
 
     for (i = 0; i < ncand; i++) {
@@ -117,10 +118,10 @@ static void resolve_face(void)
 }
 
 /* ------------------------------------------------------------------ */
-/* menu texts: owner-drawn UCS-2 or ULS-converted plain text           */
+/* menu texts: owner-drawn UTF-8 or ULS-converted plain text           */
 /* ------------------------------------------------------------------ */
 
-static const USHORT *label_for(USHORT id, int *n)
+static const char *label_for(USHORT id, int *n)
 {
     static const struct { USHORT id; const char *key; } map[] = {
         { IDM_FILE, "MENU_FILE" },         { IDM_RELOAD, "MENU_RELOAD" },
@@ -161,22 +162,28 @@ static const char *accel_for(USHORT id)
 /* A label may contain one '~' marking the mnemonic character (as in PM
    text menus): "~File", "Exit (E~)" - for scripts without Latin letters
    use a Latin mnemonic in parentheses, e.g. the Japanese "(~F)". */
-typedef struct { USHORT t[300]; int n; int mn; } PLABEL;
+typedef struct { char t[600]; int n; int mn; int mnLen; unsigned long mnch; } PLABEL;   /* bytes */
 
-static void parse_label(const USHORT *lab, PLABEL *o)
+static void parse_label(const char *lab, PLABEL *o)
 {
-    int i, k = 0;
+    int i = 0, k = 0;
 
-    o->mn = -1;
-    for (i = 0; lab[i] && k < 298; i++) {
-        if (lab[i] == '~' && o->mn < 0 && lab[i + 1]) { o->mn = k; continue; }
-        o->t[k++] = lab[i];
+    o->mn = -1; o->mnLen = 0; o->mnch = 0;
+    while (lab[i] && k < 590) {
+        if (lab[i] == '~' && o->mn < 0 && lab[i + 1]) {      /* mnemonic: next character */
+            int used = 0;
+            o->mnch = utf8_decode(lab + i + 1, (int)strlen(lab + i + 1), &used);
+            o->mn = k; o->mnLen = used;
+            i++;
+            continue;
+        }
+        o->t[k++] = lab[i++];
     }
     o->t[k] = 0;
     o->n = k;
 }
 
-static USHORT upc(USHORT c) { return (c >= 'a' && c <= 'z') ? (USHORT)(c - 32) : c; }
+static unsigned long upc(unsigned long c) { return (c >= 'a' && c <= 'z') ? c - 32 : c; }
 
 /* id of the enabled item of menu window hm whose mnemonic is ch, or -1 */
 static int find_mnemonic(HWND hm, USHORT ch, MENUITEM *out)
@@ -187,7 +194,7 @@ static int find_mnemonic(HWND hm, USHORT ch, MENUITEM *out)
     for (pos = 0; pos < cnt; pos++) {
         SHORT id = SHORT1FROMMR(WinSendMsg(hm, MM_ITEMIDFROMPOSITION, MPFROMSHORT(pos), 0));
         MENUITEM mi;
-        const USHORT *lab;
+        const char *lab;
         PLABEL pl;
         int n;
 
@@ -196,7 +203,7 @@ static int find_mnemonic(HWND hm, USHORT ch, MENUITEM *out)
         lab = label_for((USHORT)id, &n);
         if (!lab) continue;
         parse_label(lab, &pl);
-        if (pl.mn >= 0 && upc(pl.t[pl.mn]) == upc(ch)) { *out = mi; return id; }
+        if (pl.mn >= 0 && upc(pl.mnch) == upc(ch)) { *out = mi; return id; }
     }
     return -1;
 }
@@ -211,7 +218,7 @@ static void walk_menu(HWND hm)
     for (pos = 0; pos < cnt; pos++) {
         SHORT id = SHORT1FROMMR(WinSendMsg(hm, MM_ITEMIDFROMPOSITION, MPFROMSHORT(pos), 0));
         MENUITEM mi;
-        const USHORT *lab;
+        const char *lab;
         int n;
 
         if (!WinSendMsg(hm, MM_QUERYITEM, MPFROM2SHORT(id, FALSE), MPFROMP(&mi))) continue;
@@ -304,7 +311,7 @@ static MRESULT owner_msg(ULONG msg, MPARAM mp2, int *handled)
         HPS hps;
         ULONG ocp;
         int w = 0, h = MENU_PELS + 6;
-        const USHORT *lab = (const USHORT *)poi->hItem;
+        const char *lab = (const char *)poi->hItem;
         PLABEL pl;
         const char *ac;
 
@@ -314,7 +321,7 @@ static MRESULT owner_msg(ULONG msg, MPARAM mp2, int *handled)
         hps = WinGetPS(poi->hwnd);
         if (uni_begin(hps, face, MENU_PELS, &ocp)) {
             w = uni_width(hps, pl.t, pl.n);
-            if (ac) { int an; USHORT *au = uni_ascii(ac, &an); w += ACCEL_GAP + uni_width(hps, au, an); }
+            if (ac) { int an; const char *au = uni_ascii(ac, &an); w += ACCEL_GAP + uni_width(hps, au, an); }
             h = uni_height(hps) + 4;
         }
         uni_end(hps, ocp);
@@ -329,7 +336,7 @@ static MRESULT owner_msg(ULONG msg, MPARAM mp2, int *handled)
 
     case WM_DRAWITEM: {
         POWNERITEM poi = (POWNERITEM)PVOIDFROMMP(mp2);
-        const USHORT *lab = (const USHORT *)poi->hItem;
+        const char *lab = (const char *)poi->hItem;
         HPS hps;
         ULONG ocp;
         LONG bg, fg;
@@ -363,13 +370,13 @@ static MRESULT owner_msg(ULONG msg, MPARAM mp2, int *handled)
             uni_draw(hps, tx, by, pl.t, pl.n);
             if (pl.mn >= 0) {                        /* underline the mnemonic */
                 long ux = tx + uni_width(hps, pl.t, pl.mn);
-                long uw = uni_width(hps, pl.t + pl.mn, 1);
+                long uw = uni_width(hps, pl.t + pl.mn, pl.mnLen);
                 pt.x = ux;      pt.y = by - 2; GpiMove(hps, &pt);
                 pt.x = ux + uw; pt.y = by - 2; GpiLine(hps, &pt);
             }
             if (ac) {                                /* accelerator, right aligned */
                 int an;
-                USHORT *au = uni_ascii(ac, &an);
+                const char *au = uni_ascii(ac, &an);
                 uni_draw(hps, poi->rclItem.xRight - PAD - uni_width(hps, au, an), by, au, an);
             }
         }
@@ -466,20 +473,21 @@ static MRESULT EXPENTRY FrameProc(HWND hwnd, ULONG msg, MPARAM mp1, MPARAM mp2)
 /* ------------------------------------------------------------------ */
 
 /* largest k (1..len) with width(p[0..k)) <= maxw */
-static int fit_chars(HPS hps, const USHORT *p, int len, int maxw)
+static int fit_chars(HPS hps, const char *p, int len, int maxw)
 {
-    int lo = 1, hi = len;
+    int lo = utf8_align(p, len, 1), hi = len;           /* at least one character */
 
     if (uni_width(hps, p, len) <= maxw) return len;
     while (lo < hi) {
-        int mid = (lo + hi + 1) / 2;
-        if (uni_width(hps, p, mid) <= maxw) lo = mid; else hi = mid - 1;
+        int mid = utf8_align(p, len, (lo + hi + 1) / 2);   /* always on a character boundary */
+        if (mid <= lo) break;
+        if (uni_width(hps, p, mid) <= maxw) lo = mid; else hi = utf8_align(p, len, mid - 1);
     }
     return lo;
 }
 
 /* wrap one paragraph (no line breaks inside) into lines of at most maxw pels */
-static void draw_block(HPS hps, int x, int *top, int maxw, const USHORT *p, int len)
+static void draw_block(HPS hps, int x, int *top, int maxw, const char *p, int len)
 {
     int lineH = uni_height(hps), desc = uni_descender(hps);
 
@@ -500,13 +508,13 @@ static void draw_block(HPS hps, int x, int *top, int maxw, const USHORT *p, int 
 }
 
 /* paragraph-aware wrapper: splits at 0x000A and wraps each piece */
-static void draw_text(HPS hps, int x, int *top, int maxw, const USHORT *s, int n)
+static void draw_text(HPS hps, int x, int *top, int maxw, const char *s, int n)
 {
     int i = 0;
 
     while (i <= n) {
         int j = i;
-        while (j < n && s[j] != 0x000A) j++;
+        while (j < n && s[j] != 0x0A) j++;
         if (j == i) *top -= uni_height(hps);
         else        draw_block(hps, x, top, maxw, s + i, j - i);
         i = j + 1;
@@ -520,7 +528,7 @@ static void paint_client(HWND hwnd)
     ULONG ocp;
     int top, margin = 14, maxw, n, k;
     char info[300];
-    const USHORT *p;
+    const char *p;
     char key[16];
 
     hps = WinBeginPaint(hwnd, NULLHANDLE, &rcl);
@@ -539,7 +547,7 @@ static void paint_client(HWND hwnd)
 
     if (uni_begin(hps, face, textPels, &ocp)) {
         for (k = 1; k <= 6; k++) {
-            const USHORT *t;
+            const char *t;
             sprintf(key, "TEXT%d", k);
             t = cur >= 0 ? lang_get(&langs[cur], key, &n) : NULL;
             if (!t && enIdx >= 0) t = lang_get(&langs[enIdx], key, &n);
@@ -558,14 +566,14 @@ static void paint_client(HWND hwnd)
     /* diagnostics (ASCII, drawn through the same path) */
     if (uni_begin(hps, face, 13, &ocp)) {
         int lh = uni_height(hps), y = (int)rc.yBottom + 6 + lh;
-        sprintf(info, "file %s  |  %ld bytes -> %ld chars, %ld invalid", langs[cur].path,
+        sprintf(info, "file %s  |  %ld bytes UTF-8 = %ld chars, %ld invalid", langs[cur].path,
                 langs[cur].bytes, langs[cur].chars, langs[cur].invalid);
         p = uni_ascii(info, &n);
         uni_draw(hps, margin, y - lh + uni_descender(hps), p, n);
         sprintf(info, "face \"%s\" at %d pels, glyph coverage %s  |  ULS %s (CP %lu)  |  menus %s",
                 face, textPels, faceCovers ? "ok" : "MISSING (tofu)",
                 ulsOk ? "on" : "off", (unsigned long)uls_codepage(),
-                bOwner ? "owner-drawn UCS-2" : "plain text via ULS");
+                bOwner ? "owner-drawn UTF-8 (CP 1208)" : "plain text via ULS");
         p = uni_ascii(info, &n);
         uni_draw(hps, margin, y + 2 + uni_descender(hps), p, n);
     }
