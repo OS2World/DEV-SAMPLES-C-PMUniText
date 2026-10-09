@@ -21,4 +21,4 @@ TEXT1=此文字從程式旁的UTF-8檔案 lang\\zh_TW.txt 讀取，並由GPI以�
 TEXT2=請在「語言」選單中選擇其他語言。選單中的語言名稱以各自的文字顯示。
 TEXT3=編輯lang資料夾中的任何檔案，再選擇「檔案」→「重新載入語言檔」，不必重新啟動即可看到變更。
 TEXT4=範例：天地玄黃，宇宙洪荒。
-ABOUT=PMUniText 0.3 - 在OS/2 PM應用程式中處理Unicode文字的原型。僅使用GPI與ULS，不需外部函式庫。
+ABOUT=PMUniText 0.3.1 - 在OS/2 PM應用程式中處理Unicode文字的原型。僅使用GPI與ULS，不需外部函式庫。

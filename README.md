@@ -88,6 +88,7 @@ BSD 3-Clause (see `LICENSE`), same as the PM Template.
 
 ## Release notes
 
+* 0.3.1 - build scripts: `compile_gcc.cmd` sets `MAKESHELL=cmd.exe` (make could not find a shell on some systems; fix by Dave Yeo) and both compile scripts now use `setlocal`/`endlocal`, so they no longer change the caller's environment (`MAKESHELL`, `EMXOMFLD_*`, `PATH`...). The wlink settings stay: the default ilink gave warnings and an executable that hung the system. Also fixed in 0.3 and worth knowing: in 0.1/0.2 the Options - Font submenu could show shortcut texts ("Ctrl+U", "Ctrl+B"...) instead of the font names, because the owner-drawn items pointed into a small rotating buffer that was overwritten by later calls; 0.3 no longer uses that buffer.
 * 0.3 - text is drawn as UTF-8 through GPI code page 1208; the UTF-8 to UCS-2 conversion for drawing is gone (UCS-2 is only used inside the ULS fallback).
 * 0.2 - mnemonics (underlined, Alt+letter and letters in open submenus) and accelerator column for owner-drawn menus.
 * 0.1 - first prototype (October 2026).

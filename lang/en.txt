@@ -21,4 +21,4 @@ TEXT1=This text is read from lang\\en.txt, a UTF-8 file next to the program, and
 TEXT2=Pick another language in the Language menu. The names in that menu are drawn in their own scripts.
 TEXT3=Edit any file in the lang folder and use File - Reload language files to see the change without restarting.
 TEXT4=Pangram: The quick brown fox jumps over the lazy dog.
-ABOUT=PMUniText 0.3 - prototype for Unicode text in OS/2 PM applications. Plain GPI and ULS, no external libraries.
+ABOUT=PMUniText 0.3.1 - prototype for Unicode text in OS/2 PM applications. Plain GPI and ULS, no external libraries.
