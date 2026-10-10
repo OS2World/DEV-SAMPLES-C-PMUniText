@@ -12,8 +12,8 @@ language files that sit next to the executable.
 | Piece | Where | What it does |
 |---|---|---|
 | UTF-8 language files | `lang\*.txt` | `KEY=value`, `\n` = line break, `#` comment; added/edited without recompiling |
-| UTF-8 text | `src\lang.c` `utf8_sanitize()` | text stays UTF-8 (code page 1208) in memory; BOM skipped, malformed sequences become U+FFFD |
-| Drawing | `src\uni.c` `uni_begin/uni_draw` | logical font with `usCodePage = 1208`, `GpiSetCp(hps, 1208)`, `GpiCharStringAt` with the length in bytes - GPI reads the UTF-8 directly, no UCS-2 conversion |
+| UTF-8 text | `src\lang.c` `utf8_sanitize()` | text stays UTF-8 in memory; BOM skipped, malformed sequences become U+FFFD |
+| Drawing | `src\uni.c` `uni_begin/uni_draw` | the UTF-8 is converted to UCS-2 for every GPI call and drawn in **code page 1200**: logical font with `usCodePage = 1200`, `GpiSetCp(hps, 1200)`, `GpiCharStringAt` with the length in bytes (2 per character) |
 | Menus | `src\main.c` | every item switched to `MIS_OWNERDRAW`; the UTF-8 label is the item handle (`hItem`) and is painted with the same drawing code |
 | Plain fallback | `uls_to_cp()` | UTF-8 -> process code page through ULS (`UCONV.DLL`, loaded at run time); `?` for characters that do not exist in the code page |
 | Font choice | `resolve_face()` | per-language `FONT=` list, then built-in candidates; a face is accepted only if it really draws the language's characters (rendered into a memory bitmap and compared with the face's "missing glyph") |
@@ -23,15 +23,19 @@ visible in the menu at once.
 
 ## Findings (ArcaOS 5.1, tested in the VM)
 
-* **GPI accepts UTF-8 directly: code page 1208.** A font created with `FATTRS.usCodePage = 1208` (and
-  `GpiSetCp(hps, 1208)`) draws UTF-8 bytes exactly like the same text as UCS-2 in code page 1200
-  (identical pels for Latin, Greek, Cyrillic, Japanese, Korean; `probe\probe1208.c`, `probe\probe1208.log`).
-  The *font's* code page decides: a font created for 1200 followed by `GpiSetCp(1208)` draws garbage.
-  (The first version of this sample converted to UCS-2 and used 1200; thanks to Dave Yeo for pointing
-  out CP 1208.)
-* GPI length arguments are in **bytes** (the UTF-8 length; 2 per character for code page 1200).
-* 4-byte (non-BMP) sequences are accepted and do not crash, but the tested fonts have no glyphs for
-  them (they draw as two missing-glyph boxes, i.e. GPI turns them into a surrogate pair).
+* **Render in code page 1200 (UCS-2), not 1208.** GPI accepts UTF-8 directly (a font created with
+  `FATTRS.usCodePage = 1208` and `GpiSetCp(hps, 1208)` draws the same pels as the UCS-2 text in
+  code page 1200; `probe\probe1208.c`, `probe\probe1208.log`), but 1208 is meant for reading and
+  writing UTF-8, not for display: it is much slower to render. 1200 is also a standard Unicode
+  encoding (UCS-2 / the fixed-width subset of UTF-16) and the GPI text functions take length-bounded
+  byte arrays, so a UniChar string goes in as it is, without a terminator. Thanks to Alex Taylor,
+  who tested this extensively (his own samples: https://altsan.org/os2/toolkits/uls/index.html#samples).
+  (The first version of this sample used 1200, version 0.3 switched to 1208 after a suggestion by
+  Dave Yeo, version 0.4 is back on 1200 for the speed.) Note that the *font's* code page decides:
+  a font created for 1200 followed by `GpiSetCp(1208)` draws garbage.
+* GPI length arguments are in **bytes** (2 per UniChar for code page 1200).
+* Non-BMP characters (4-byte UTF-8) are sent as surrogate pairs; they do not crash, but the tested
+  fonts have no glyphs for them (two missing-glyph boxes).
 * Faces that contain Kana, Kanji/Hanzi and Hangul glyphs: `Droid Sans Combined`,
   `Times New Roman MT 30`, `Monotype Sans Duospace WT J`, `Times New Roman WT J`.
   Latin/Greek/Cyrillic: most of the installed outline fonts. Full list: `probe\probe.log`.
@@ -79,7 +83,7 @@ src\       main.c (window, menus, painting)  uni.c (UTF-8 helpers, ULS, fonts, d
 lang\      en es ru el ja zh_CN zh_TW ko
 img\       screenshots
 probe\     probe.c + probe.log  (what GPI does with code page 1200 on this system)
-           probe1208.c + probe1208.log  (GPI with UTF-8 / code page 1208)
+           probe1208.c + probe1208.log  (GPI with UTF-8 / code page 1208: works, but slower than 1200)
 ```
 
 ## License
@@ -88,7 +92,8 @@ BSD 3-Clause (see `LICENSE`), same as the PM Template.
 
 ## Release notes
 
+* 0.4 - drawing is back on code page 1200: `uni.c` converts the UTF-8 text to UCS-2 for each GPI call (`uni_width`, `uni_draw` and the font coverage test), the font and `GpiSetCp` use 1200. Code page 1208 renders correctly but is slow (feedback from Alex Taylor). The `uni_*` functions still take UTF-8 and byte lengths, so the callers did not change.
 * 0.3.1 - build scripts: `compile_gcc.cmd` sets `MAKESHELL=cmd.exe` (make could not find a shell on some systems; fix by Dave Yeo) and both compile scripts now use `setlocal`/`endlocal`, so they no longer change the caller's environment (`MAKESHELL`, `EMXOMFLD_*`, `PATH`...). The wlink settings stay: the default ilink gave warnings and an executable that hung the system. Also fixed in 0.3 and worth knowing: in 0.1/0.2 the Options - Font submenu could show shortcut texts ("Ctrl+U", "Ctrl+B"...) instead of the font names, because the owner-drawn items pointed into a small rotating buffer that was overwritten by later calls; 0.3 no longer uses that buffer.
-* 0.3 - text is drawn as UTF-8 through GPI code page 1208; the UTF-8 to UCS-2 conversion for drawing is gone (UCS-2 is only used inside the ULS fallback).
+* 0.3 - text was drawn as UTF-8 through GPI code page 1208 (replaced by 0.4).
 * 0.2 - mnemonics (underlined, Alt+letter and letters in open submenus) and accelerator column for owner-drawn menus.
 * 0.1 - first prototype (October 2026).

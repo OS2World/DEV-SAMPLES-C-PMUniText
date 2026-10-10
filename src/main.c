@@ -573,7 +573,7 @@ static void paint_client(HWND hwnd)
         sprintf(info, "face \"%s\" at %d pels, glyph coverage %s  |  ULS %s (CP %lu)  |  menus %s",
                 face, textPels, faceCovers ? "ok" : "MISSING (tofu)",
                 ulsOk ? "on" : "off", (unsigned long)uls_codepage(),
-                bOwner ? "owner-drawn UTF-8 (CP 1208)" : "plain text via ULS");
+                bOwner ? "owner-drawn UCS-2 (CP 1200)" : "plain text via ULS");
         p = uni_ascii(info, &n);
         uni_draw(hps, margin, y + 2 + uni_descender(hps), p, n);
     }

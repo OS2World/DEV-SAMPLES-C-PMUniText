@@ -1,18 +1,21 @@
 /*
  * uni.h -- Unicode text layer for plain PM applications
  *
- * Strings are kept as UTF-8 (code page 1208), exactly as they come from the
- * language files.  GPI draws them directly: the logical font is created with
- * usCodePage = 1208 and GpiSetCp(hps, 1208), and the length arguments are in
- * BYTES.  No conversion to UCS-2 is needed for drawing.  Everything PM cannot
- * display natively (menus, title bar) goes through ULS conversion into the
- * process code page or through owner drawing.
+ * Strings are kept as UTF-8, exactly as they come from the language files.
+ * For drawing they are converted to UCS-2 (UTF-16, non-BMP characters become
+ * surrogate pairs) and handed to GPI in code page 1200: the logical font is
+ * created with usCodePage = 1200 and GpiSetCp(hps, 1200); the UniChar string
+ * is passed to the GPI text functions as a length-bounded byte array (2 bytes
+ * per UniChar, no terminator).  Code page 1208 (UTF-8) is NOT used for
+ * rendering: GPI accepts it but it is much slower to draw (suggestion of
+ * Alex Taylor, who measured it).  The text functions below still take UTF-8
+ * and byte lengths, so callers do not change.  Everything PM cannot display
+ * natively (menus, title bar) goes through ULS conversion into the process
+ * code page or through owner drawing.
  *
  * Findings from probe\probe.c and probe\probe1208.c on ArcaOS 5.1
  * (documented in README.md):
- *   - a font created with code page 1208 draws UTF-8 text identically to the
- *     same text as UCS-2 in code page 1200 (the font's code page decides,
- *     GpiSetCp on a font created for 1200 does not work)
+ *   - 1200 and 1208 draw identical pels; 1200 is the fast, standard path
  *   - "Droid Sans Combined", "Times New Roman MT 30" and the WT J fonts
  *     contain Kana, Kanji/Hanzi and Hangul glyphs
  */
@@ -25,7 +28,7 @@
 #define INCL_GPI
 #include <os2.h>
 
-#define UNI_CP 1208L          /* UTF-8 */
+#define UNI_CP 1200L          /* UCS-2: GPI rendering code page */
 
 /* ---- UTF-8 helpers ------------------------------------------------ */
 
@@ -52,13 +55,13 @@ ULONG uls_codepage(void);
 
 #define UNI_LCID 7L           /* local character set id used for text */
 
-/* Select face at pels (device pels) for code page 1208 into hps.
+/* Select face at pels (device pels) for code page 1200 into hps.
  * Returns 1 when the face exists (FONT_MATCH).  Always pair with
  * uni_end(). */
 int  uni_begin(HPS hps, const char *face, int pels, ULONG *oldcp);
 void uni_end(HPS hps, ULONG oldcp);
 
-/* n is the length in BYTES of the UTF-8 string s */
+/* n is the length in BYTES of the UTF-8 string s (converted to UCS-2 inside) */
 int  uni_width(HPS hps, const char *s, int n);
 int  uni_height(HPS hps);                       /* line height in pels */
 int  uni_descender(HPS hps);

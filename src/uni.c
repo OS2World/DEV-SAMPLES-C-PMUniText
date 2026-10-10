@@ -48,6 +48,29 @@ int utf8_align(const char *s, int n, int k)
     return i > n ? n : i;
 }
 
+/* UTF-8 -> UCS-2 for GPI (code page 1200).  Returns the number of UniChars
+ * written (at most n + 1); characters beyond the BMP become surrogate pairs. */
+static int utf8_to_ucs2(const char *s, int n, USHORT *out, int outmax)
+{
+    int i = 0, o = 0;
+
+    while (i < n && o < outmax - 1) {
+        int used = 1;
+        unsigned long cp = utf8_decode(s + i, n - i, &used);
+        i += used > 0 ? used : 1;
+        if (cp >= 0x10000UL && cp <= 0x10FFFFUL) {
+            cp -= 0x10000UL;
+            out[o++] = (USHORT)(0xD800 + (cp >> 10));
+            out[o++] = (USHORT)(0xDC00 + (cp & 0x3FF));
+        } else if (cp >= 0xD800UL && cp <= 0xDFFFUL) {
+            out[o++] = 0xFFFD;                     /* lone surrogate */
+        } else {
+            out[o++] = (USHORT)cp;
+        }
+    }
+    return o;
+}
+
 /* is the sequence at src[i..] well formed?  returns its length or 0 */
 static int valid_seq(const unsigned char *src, long i, long len)
 {
@@ -188,7 +211,7 @@ int uni_begin(HPS hps, const char *face, int pels, ULONG *oldcp)
     memset(&fat, 0, sizeof(fat));
     fat.usRecordLength = sizeof(FATTRS);
     strncpy(fat.szFacename, face, FACESIZE - 1);
-    fat.usCodePage = (USHORT)UNI_CP;     /* UTF-8: the font decides how GPI reads the bytes */
+    fat.usCodePage = (USHORT)UNI_CP;     /* 1200: GPI gets UCS-2 text */
     fat.fsFontUse  = FATTR_FONTUSE_OUTLINE | FATTR_FONTUSE_TRANSFORMABLE;
     GpiDeleteSetId(hps, UNI_LCID);
     rc = GpiCreateLogFont(hps, NULL, UNI_LCID, &fat);
@@ -208,16 +231,20 @@ void uni_end(HPS hps, ULONG oldcp)
     GpiDeleteSetId(hps, UNI_LCID);
 }
 
-#define CHUNK 200            /* bytes per GPI call, stays below 512; never cuts a character */
+/* UTF-8 bytes per GPI call.  At most CHUNK UniChars = 2*CHUNK bytes reach GPI,
+ * which stays below its 512 byte limit; a chunk never cuts a character. */
+#define CHUNK 200
 
 int uni_width(HPS hps, const char *s, int n)
 {
     POINTL pt[TXTBOX_COUNT];
+    USHORT uc[CHUNK + 2];
     int total = 0;
 
     while (n > 0) {
-        int c = utf8_align(s, n, n > CHUNK ? CHUNK : n);
-        if (GpiQueryTextBox(hps, (LONG)c, (PCH)s, TXTBOX_COUNT, pt))
+        int c  = utf8_align(s, n, n > CHUNK ? CHUNK : n);
+        int nu = utf8_to_ucs2(s, c, uc, CHUNK + 2);
+        if (GpiQueryTextBox(hps, (LONG)(nu * 2), (PCH)uc, TXTBOX_COUNT, pt))
             total += (int)(pt[TXTBOX_CONCAT].x - pt[TXTBOX_BOTTOMLEFT].x);
         s += c; n -= c;
     }
@@ -248,11 +275,13 @@ int uni_descender(HPS hps)
 void uni_draw(HPS hps, long x, long y, const char *s, int n)
 {
     POINTL pt;
+    USHORT uc[CHUNK + 2];
 
     pt.x = x; pt.y = y;
     while (n > 0) {
-        int c = utf8_align(s, n, n > CHUNK ? CHUNK : n);
-        GpiCharStringAt(hps, &pt, (LONG)c, (PCH)s);
+        int c  = utf8_align(s, n, n > CHUNK ? CHUNK : n);
+        int nu = utf8_to_ucs2(s, c, uc, CHUNK + 2);
+        GpiCharStringAt(hps, &pt, (LONG)(nu * 2), (PCH)uc);
         s += c; n -= c;
         if (n > 0) pt.x = x + uni_width(hps, s - c, c);    /* next piece */
     }
@@ -305,6 +334,8 @@ static long cov_render(const char *ch, int len, unsigned long *hash)
     RECTL  rcl;
     long   x, y, cnt = 0, bg;
     unsigned long h = 5381;
+    USHORT uc[8];
+    int    nu = utf8_to_ucs2(ch, len, uc, 8);
 
     rcl.xLeft = 0; rcl.yBottom = 0; rcl.xRight = COV; rcl.yTop = COV;
     WinFillRect(hpsMem, &rcl, CLR_WHITE);
@@ -312,7 +343,7 @@ static long cov_render(const char *ch, int len, unsigned long *hash)
     bg = GpiQueryPel(hpsMem, &p);
     GpiSetColor(hpsMem, CLR_BLACK);
     pt.x = 4; pt.y = 12;
-    GpiCharStringAt(hpsMem, &pt, (LONG)len, (PCH)ch);
+    GpiCharStringAt(hpsMem, &pt, (LONG)(nu * 2), (PCH)uc);
     for (y = 0; y < COV; y++)
         for (x = 0; x < COV; x++) {
             p.x = x; p.y = y;
